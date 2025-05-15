@@ -304,77 +304,65 @@ const LunchBoxPage: React.FC = () => {
       {/* Meal Details Modal */}
       {selectedMeal && (
         <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-          <div className="flex flex-col md:flex-row md:h-[600px] gap-8">
-            <div className="md:w-1/2 h-full flex flex-col">
-              <div className="relative h-72 rounded-xl overflow-hidden">
-                <img
-                  src={selectedMeal.image}
-                  alt={selectedMeal.title}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4">
-                  <h2 className="text-2xl font-bold text-white mb-2">{selectedMeal.title}</h2>
-                  <p className="text-white/90">{selectedMeal.description}</p>
+          <div className="flex flex-col md:flex-row gap-8">
+            <div className="md:w-1/2">
+              <img
+                src={selectedMeal.image}
+                alt={selectedMeal.title}
+                className="w-full h-64 object-cover rounded-lg"
+              />
+              <div className="mt-6 grid grid-cols-2 gap-4">
+                <div className="bg-orange-50 p-4 rounded-lg text-center">
+                  <span className="block text-sm text-gray-600">Total Calories</span>
+                  <span className="text-xl font-bold text-orange-600">
+                    {totalCalories(selectedMeal.details)}
+                  </span>
                 </div>
-              </div>
-              
-              <div className="flex-1 mt-6">
-                <div className="grid grid-cols-2 gap-4 h-full">
-                  <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-xl text-center flex flex-col justify-center">
-                    <span className="block text-sm text-gray-600 mb-1">Total Calories</span>
-                    <span className="text-3xl font-bold text-orange-600">
-                      {totalCalories(selectedMeal.details)}
-                    </span>
-                  </div>
-                  <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-xl text-center flex flex-col justify-center">
-                    <span className="block text-sm text-gray-600 mb-1">Total Protein</span>
-                    <span className="text-3xl font-bold text-orange-600">
-                      {totalProtein(selectedMeal.details)}g
-                    </span>
-                  </div>
+                <div className="bg-orange-50 p-4 rounded-lg text-center">
+                  <span className="block text-sm text-gray-600">Total Protein</span>
+                  <span className="text-xl font-bold text-orange-600">
+                    {totalProtein(selectedMeal.details)}g
+                  </span>
                 </div>
               </div>
             </div>
             
-            <div className="md:w-1/2 h-full flex flex-col">
-              <div className="flex-1 overflow-y-auto pr-2">
-                <div className="space-y-6">
-                  {Object.entries(selectedMeal.details).map(([key, value]: [string, any]) => (
-                    <div 
-                      key={key} 
-                      className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4"
-                    >
-                      <h3 className="font-medium text-gray-900 capitalize mb-3 flex items-center">
-                        <span className="w-2 h-2 rounded-full bg-orange-500 mr-2"></span>
-                        {value.name}
-                      </h3>
-                      <div className="grid grid-cols-2 gap-y-2 text-sm">
-                        <div>
-                          <span className="text-gray-600">Quantity:</span>
-                          <span className="ml-2 font-medium text-gray-900">{value.quantity}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">Calories:</span>
-                          <span className="ml-2 font-medium text-gray-900">{value.calories}</span>
-                        </div>
-                        <div className="col-span-2">
-                          <span className="text-gray-600">Protein:</span>
-                          <span className="ml-2 font-medium text-gray-900">{value.protein}</span>
-                        </div>
+            <div className="md:w-1/2">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">{selectedMeal.title}</h2>
+              
+              <div className="space-y-6">
+                {Object.entries(selectedMeal.details).map(([key, value]: [string, any]) => (
+                  <div key={key} className="border-b border-gray-100 pb-4">
+                    <h3 className="font-medium text-gray-900 capitalize mb-2">{key}</h3>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-gray-600">Item:</span>
+                        <span className="ml-2 font-medium">{value.name}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Quantity:</span>
+                        <span className="ml-2 font-medium">{value.quantity}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Calories:</span>
+                        <span className="ml-2 font-medium">{value.calories}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Protein:</span>
+                        <span className="ml-2 font-medium">{value.protein}</span>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
 
-              <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className="mt-6">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-gray-900 font-medium">Quantity:</span>
-                  <div className="flex items-center gap-4 bg-gray-50 px-4 py-2 rounded-lg">
+                  <div className="flex items-center gap-4">
                     <button
                       onClick={() => handleQuantityChange(quantity - 1)}
-                      className="p-2 rounded-full hover:bg-white transition-colors"
+                      className="p-2 rounded-full hover:bg-gray-100"
                       disabled={quantity <= 20}
                     >
                       <Minus className="w-4 h-4" />
@@ -382,16 +370,16 @@ const LunchBoxPage: React.FC = () => {
                     <span className="w-16 text-center font-medium">{quantity}</span>
                     <button
                       onClick={() => handleQuantityChange(quantity + 1)}
-                      className="p-2 rounded-full hover:bg-white transition-colors"
+                      className="p-2 rounded-full hover:bg-gray-100"
                     >
                       <Plus className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center mb-6 bg-orange-50 p-4 rounded-xl">
+                <div className="flex justify-between items-center mb-6">
                   <span className="text-gray-900 font-medium">Total Price:</span>
-                  <span className="text-3xl font-bold text-orange-600">
+                  <span className="text-2xl font-bold text-orange-600">
                     ${(selectedMeal.price * quantity).toFixed(2)}
                   </span>
                 </div>
