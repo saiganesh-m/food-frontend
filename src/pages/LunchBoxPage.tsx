@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
-import { Calendar, Info, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, Info, ChevronLeft, ChevronRight, Minus, Plus } from 'lucide-react';
 import Button from '../components/ui/Button';
+import Modal from '../components/ui/Modal';
 import { useCart } from '../context/CartContext';
 
 const LunchBoxPage: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedMeal, setSelectedMeal] = useState<any>(null);
+  const [quantity, setQuantity] = useState(20);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { addToCart } = useCart();
 
   // Get next 7 days
@@ -47,6 +51,32 @@ const LunchBoxPage: React.FC = () => {
       description: 'Butter Chicken + Naans, Chicken Curry + Pulav Rice, Sweet',
       price: 12.99,
       image: 'https://images.pexels.com/photos/2474661/pexels-photo-2474661.jpeg',
+      details: {
+        mainDish: {
+          name: 'Butter Chicken',
+          quantity: '8 oz',
+          calories: 450,
+          protein: '32g',
+        },
+        sideDish: {
+          name: 'Pulav Rice',
+          quantity: '6 oz',
+          calories: 250,
+          protein: '5g',
+        },
+        bread: {
+          name: 'Naan',
+          quantity: '2 pieces',
+          calories: 260,
+          protein: '8g',
+        },
+        dessert: {
+          name: 'Gulab Jamun',
+          quantity: '2 pieces',
+          calories: 150,
+          protein: '2g',
+        },
+      },
     },
     {
       id: 'egg',
@@ -54,6 +84,32 @@ const LunchBoxPage: React.FC = () => {
       description: 'Egg Curry + Pulav, Masala Omelette + Naans, Sweet',
       price: 10.99,
       image: 'https://images.pexels.com/photos/12737908/pexels-photo-12737908.jpeg',
+      details: {
+        mainDish: {
+          name: 'Egg Curry',
+          quantity: '8 oz',
+          calories: 380,
+          protein: '24g',
+        },
+        sideDish: {
+          name: 'Pulav Rice',
+          quantity: '6 oz',
+          calories: 250,
+          protein: '5g',
+        },
+        bread: {
+          name: 'Naan',
+          quantity: '2 pieces',
+          calories: 260,
+          protein: '8g',
+        },
+        dessert: {
+          name: 'Kheer',
+          quantity: '4 oz',
+          calories: 180,
+          protein: '4g',
+        },
+      },
     },
     {
       id: 'veg',
@@ -61,22 +117,69 @@ const LunchBoxPage: React.FC = () => {
       description: 'Paneer Tikka + Naans, Veg Curry + Pulav Rice, Sweet',
       price: 11.99,
       image: 'https://images.pexels.com/photos/8340088/pexels-photo-8340088.jpeg',
+      details: {
+        mainDish: {
+          name: 'Paneer Tikka Masala',
+          quantity: '8 oz',
+          calories: 420,
+          protein: '22g',
+        },
+        sideDish: {
+          name: 'Pulav Rice',
+          quantity: '6 oz',
+          calories: 250,
+          protein: '5g',
+        },
+        bread: {
+          name: 'Naan',
+          quantity: '2 pieces',
+          calories: 260,
+          protein: '8g',
+        },
+        dessert: {
+          name: 'Rasmalai',
+          quantity: '2 pieces',
+          calories: 160,
+          protein: '4g',
+        },
+      },
     },
   ];
 
-  const handleBulkOrder = (mealId: string) => {
-    const meal = mealTypes.find(m => m.id === mealId);
-    if (!meal || !selectedDate) return;
+  const handleQuantityChange = (value: number) => {
+    if (value >= 20) {
+      setQuantity(value);
+    }
+  };
 
-    // Add 20 meals at once
+  const handleBulkOrder = () => {
+    if (!selectedMeal) return;
+
     addToCart({
-      id: mealId,
-      name: meal.title,
-      price: meal.price,
-      image: meal.image,
+      id: selectedMeal.id,
+      name: selectedMeal.title,
+      price: selectedMeal.price,
+      image: selectedMeal.image,
       type: 'meal',
-      quantity: 20,
+      quantity: quantity,
     });
+    setIsModalOpen(false);
+  };
+
+  const openMealDetails = (meal: any) => {
+    setSelectedMeal(meal);
+    setIsModalOpen(true);
+  };
+
+  const totalCalories = (details: any) => {
+    return Object.values(details).reduce((sum: number, item: any) => sum + item.calories, 0);
+  };
+
+  const totalProtein = (details: any) => {
+    return Object.values(details).reduce((sum: number, item: any) => {
+      const protein = parseInt(item.protein);
+      return sum + protein;
+    }, 0);
   };
 
   return (
@@ -159,12 +262,18 @@ const LunchBoxPage: React.FC = () => {
               key={meal.id}
               className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow"
             >
-              <div className="relative h-48">
+              <div 
+                className="relative h-48 cursor-pointer"
+                onClick={() => openMealDetails(meal)}
+              >
                 <img
                   src={meal.image}
                   alt={meal.title}
                   className="w-full h-full object-cover"
                 />
+                <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <span className="text-white font-medium">View Details</span>
+                </div>
               </div>
               <div className="p-6">
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">
@@ -180,17 +289,116 @@ const LunchBoxPage: React.FC = () => {
                 <Button
                   variant="primary"
                   fullWidth
-                  onClick={() => handleBulkOrder(meal.id)}
+                  onClick={() => openMealDetails(meal)}
                   disabled={!selectedDate}
                   className="shadow-lg shadow-orange-500/30"
                 >
-                  Order 20 Meals
+                  Order Now
                 </Button>
               </div>
             </div>
           ))}
         </div>
       </div>
+
+      {/* Meal Details Modal */}
+      {selectedMeal && (
+        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+          <div className="flex flex-col md:flex-row gap-8">
+            <div className="md:w-1/2">
+              <img
+                src={selectedMeal.image}
+                alt={selectedMeal.title}
+                className="w-full h-64 object-cover rounded-lg"
+              />
+              <div className="mt-6 grid grid-cols-2 gap-4">
+                <div className="bg-orange-50 p-4 rounded-lg text-center">
+                  <span className="block text-sm text-gray-600">Total Calories</span>
+                  <span className="text-xl font-bold text-orange-600">
+                    {totalCalories(selectedMeal.details)}
+                  </span>
+                </div>
+                <div className="bg-orange-50 p-4 rounded-lg text-center">
+                  <span className="block text-sm text-gray-600">Total Protein</span>
+                  <span className="text-xl font-bold text-orange-600">
+                    {totalProtein(selectedMeal.details)}g
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="md:w-1/2">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">{selectedMeal.title}</h2>
+              
+              <div className="space-y-6">
+                {Object.entries(selectedMeal.details).map(([key, value]: [string, any]) => (
+                  <div key={key} className="border-b border-gray-100 pb-4">
+                    <h3 className="font-medium text-gray-900 capitalize mb-2">{key}</h3>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-gray-600">Item:</span>
+                        <span className="ml-2 font-medium">{value.name}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Quantity:</span>
+                        <span className="ml-2 font-medium">{value.quantity}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Calories:</span>
+                        <span className="ml-2 font-medium">{value.calories}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">Protein:</span>
+                        <span className="ml-2 font-medium">{value.protein}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-6">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-gray-900 font-medium">Quantity:</span>
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={() => handleQuantityChange(quantity - 1)}
+                      className="p-2 rounded-full hover:bg-gray-100"
+                      disabled={quantity <= 20}
+                    >
+                      <Minus className="w-4 h-4" />
+                    </button>
+                    <span className="w-16 text-center font-medium">{quantity}</span>
+                    <button
+                      onClick={() => handleQuantityChange(quantity + 1)}
+                      className="p-2 rounded-full hover:bg-gray-100"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center mb-6">
+                  <span className="text-gray-900 font-medium">Total Price:</span>
+                  <span className="text-2xl font-bold text-orange-600">
+                    ${(selectedMeal.price * quantity).toFixed(2)}
+                  </span>
+                </div>
+
+                <Button
+                  variant="primary"
+                  fullWidth
+                  size="lg"
+                  onClick={handleBulkOrder}
+                  disabled={!selectedDate}
+                  className="shadow-lg shadow-orange-500/30"
+                >
+                  Add to Cart
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 };
