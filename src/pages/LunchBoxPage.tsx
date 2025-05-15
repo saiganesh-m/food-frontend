@@ -23,8 +23,6 @@ const LunchBoxPage: React.FC = () => {
     return days;
   };
 
-  const availableDates = getNextSevenDays();
-
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
       weekday: 'short',
@@ -44,6 +42,8 @@ const LunchBoxPage: React.FC = () => {
     return true;
   };
 
+  const availableDates = getNextSevenDays();
+
   const mealTypes = [
     {
       id: 'chicken',
@@ -57,24 +57,28 @@ const LunchBoxPage: React.FC = () => {
           quantity: '8 oz',
           calories: 450,
           protein: '32g',
+          description: 'Tender chicken in a rich, creamy tomato-based sauce'
         },
         sideDish: {
           name: 'Pulav Rice',
           quantity: '6 oz',
           calories: 250,
           protein: '5g',
+          description: 'Fragrant basmati rice cooked with aromatic spices'
         },
         bread: {
           name: 'Naan',
           quantity: '2 pieces',
           calories: 260,
           protein: '8g',
+          description: 'Freshly baked traditional Indian flatbread'
         },
         dessert: {
           name: 'Gulab Jamun',
           quantity: '2 pieces',
           calories: 150,
           protein: '2g',
+          description: 'Sweet milk dumplings in rose-flavored syrup'
         },
       },
     },
@@ -90,24 +94,28 @@ const LunchBoxPage: React.FC = () => {
           quantity: '8 oz',
           calories: 380,
           protein: '24g',
+          description: 'Boiled eggs in a rich, spiced curry sauce'
         },
         sideDish: {
           name: 'Pulav Rice',
           quantity: '6 oz',
           calories: 250,
           protein: '5g',
+          description: 'Fragrant basmati rice cooked with aromatic spices'
         },
         bread: {
           name: 'Naan',
           quantity: '2 pieces',
           calories: 260,
           protein: '8g',
+          description: 'Freshly baked traditional Indian flatbread'
         },
         dessert: {
           name: 'Kheer',
           quantity: '4 oz',
           calories: 180,
           protein: '4g',
+          description: 'Creamy rice pudding with cardamom and nuts'
         },
       },
     },
@@ -123,24 +131,28 @@ const LunchBoxPage: React.FC = () => {
           quantity: '8 oz',
           calories: 420,
           protein: '22g',
+          description: 'Grilled cottage cheese in a creamy tomato sauce'
         },
         sideDish: {
           name: 'Pulav Rice',
           quantity: '6 oz',
           calories: 250,
           protein: '5g',
+          description: 'Fragrant basmati rice cooked with aromatic spices'
         },
         bread: {
           name: 'Naan',
           quantity: '2 pieces',
           calories: 260,
           protein: '8g',
+          description: 'Freshly baked traditional Indian flatbread'
         },
         dessert: {
           name: 'Rasmalai',
           quantity: '2 pieces',
           calories: 160,
           protein: '4g',
+          description: 'Soft cottage cheese dumplings in sweet milk'
         },
       },
     },
@@ -263,16 +275,18 @@ const LunchBoxPage: React.FC = () => {
               className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow"
             >
               <div 
-                className="relative h-48 cursor-pointer"
+                className="relative h-48 cursor-pointer group"
                 onClick={() => openMealDetails(meal)}
               >
                 <img
                   src={meal.image}
                   alt={meal.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <span className="text-white font-medium">View Details</span>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                  <span className="text-white font-medium px-6 py-2 border-2 border-white/50 rounded-full backdrop-blur-sm">
+                    View Details
+                  </span>
                 </div>
               </div>
               <div className="p-6">
@@ -306,75 +320,77 @@ const LunchBoxPage: React.FC = () => {
         <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
           <div className="flex flex-col md:flex-row md:h-[600px] gap-8">
             <div className="md:w-1/2 h-full flex flex-col">
-              <div className="relative h-72 rounded-xl overflow-hidden">
+              <div className="relative h-72 rounded-xl overflow-hidden shadow-lg">
                 <img
                   src={selectedMeal.image}
                   alt={selectedMeal.title}
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4">
-                  <h2 className="text-2xl font-bold text-white mb-2">{selectedMeal.title}</h2>
-                  <p className="text-white/90">{selectedMeal.description}</p>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <div className="inline-block px-3 py-1 bg-orange-500 text-white text-sm font-medium rounded-full mb-2">
+                    {selectedMeal.id === 'chicken' ? 'Non-Veg' : selectedMeal.id === 'veg' ? 'Vegetarian' : 'Egg'}
+                  </div>
+                  <h2 className="text-3xl font-bold text-white mb-2">{selectedMeal.title}</h2>
+                  <p className="text-white/90 text-lg">{selectedMeal.description}</p>
                 </div>
               </div>
               
               <div className="flex-1 mt-6">
-                <div className="grid grid-cols-2 gap-4 h-full">
-                  <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-xl text-center flex flex-col justify-center">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-xl text-center">
                     <span className="block text-sm text-gray-600 mb-1">Total Calories</span>
                     <span className="text-3xl font-bold text-orange-600">
                       {totalCalories(selectedMeal.details)}
                     </span>
+                    <span className="block text-sm text-gray-500 mt-1">kcal per meal</span>
                   </div>
-                  <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-xl text-center flex flex-col justify-center">
+                  <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-xl text-center">
                     <span className="block text-sm text-gray-600 mb-1">Total Protein</span>
                     <span className="text-3xl font-bold text-orange-600">
                       {totalProtein(selectedMeal.details)}g
                     </span>
+                    <span className="block text-sm text-gray-500 mt-1">per meal</span>
                   </div>
                 </div>
               </div>
             </div>
             
             <div className="md:w-1/2 h-full flex flex-col">
-              <div className="flex-1 overflow-y-auto pr-2">
-                <div className="space-y-6">
-                  {Object.entries(selectedMeal.details).map(([key, value]: [string, any]) => (
-                    <div 
-                      key={key} 
-                      className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4"
-                    >
-                      <h3 className="font-medium text-gray-900 capitalize mb-3 flex items-center">
-                        <span className="w-2 h-2 rounded-full bg-orange-500 mr-2"></span>
-                        {value.name}
-                      </h3>
-                      <div className="grid grid-cols-2 gap-y-2 text-sm">
-                        <div>
-                          <span className="text-gray-600">Quantity:</span>
-                          <span className="ml-2 font-medium text-gray-900">{value.quantity}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">Calories:</span>
-                          <span className="ml-2 font-medium text-gray-900">{value.calories}</span>
-                        </div>
-                        <div className="col-span-2">
-                          <span className="text-gray-600">Protein:</span>
-                          <span className="ml-2 font-medium text-gray-900">{value.protein}</span>
-                        </div>
+              <div className="flex-1 overflow-y-auto pr-2 space-y-4">
+                {Object.entries(selectedMeal.details).map(([key, value]: [string, any]) => (
+                  <div 
+                    key={key}
+                    className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-100"
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-lg font-semibold text-gray-900">{value.name}</h3>
+                      <span className="px-3 py-1 bg-white text-sm font-medium text-gray-600 rounded-full shadow-sm">
+                        {value.quantity}
+                      </span>
+                    </div>
+                    <p className="text-gray-600 text-sm mb-4">{value.description}</p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-white px-4 py-2 rounded-lg shadow-sm">
+                        <span className="block text-xs text-gray-500">Calories</span>
+                        <span className="font-medium text-gray-900">{value.calories} kcal</span>
+                      </div>
+                      <div className="bg-white px-4 py-2 rounded-lg shadow-sm">
+                        <span className="block text-xs text-gray-500">Protein</span>
+                        <span className="font-medium text-gray-900">{value.protein}</span>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
 
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-gray-900 font-medium">Quantity:</span>
-                  <div className="flex items-center gap-4 bg-gray-50 px-4 py-2 rounded-lg">
+                  <div className="flex items-center gap-4 bg-gradient-to-r from-orange-50 to-orange-100 px-4 py-2 rounded-lg shadow-sm">
                     <button
                       onClick={() => handleQuantityChange(quantity - 1)}
-                      className="p-2 rounded-full hover:bg-white transition-colors"
+                      className="p-2 rounded-full hover:bg-white transition-colors disabled:opacity-50"
                       disabled={quantity <= 20}
                     >
                       <Minus className="w-4 h-4" />
@@ -389,11 +405,19 @@ const LunchBoxPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center mb-6 bg-orange-50 p-4 rounded-xl">
-                  <span className="text-gray-900 font-medium">Total Price:</span>
-                  <span className="text-3xl font-bold text-orange-600">
-                    ${(selectedMeal.price * quantity).toFixed(2)}
-                  </span>
+                <div className="flex justify-between items-center mb-6 bg-gradient-to-r from-orange-100 to-orange-50 p-6 rounded-xl shadow-sm">
+                  <div>
+                    <span className="block text-sm text-gray-600">Total Price</span>
+                    <span className="text-3xl font-bold text-orange-600">
+                      ${(selectedMeal.price * quantity).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="block text-sm text-gray-600">Per Meal</span>
+                    <span className="text-lg font-semibold text-gray-900">
+                      ${selectedMeal.price}
+                    </span>
+                  </div>
                 </div>
 
                 <Button
@@ -402,7 +426,7 @@ const LunchBoxPage: React.FC = () => {
                   size="lg"
                   onClick={handleBulkOrder}
                   disabled={!selectedDate}
-                  className="shadow-lg shadow-orange-500/30"
+                  className="shadow-lg shadow-orange-500/30 text-lg"
                 >
                   Add to Cart
                 </Button>
