@@ -3,7 +3,7 @@ import { CartItem } from '../types';
 
 interface CartContextType {
   items: CartItem[];
-  addToCart: (item: Omit<CartItem, 'quantity'>) => void;
+  addToCart: (item: Omit<CartItem, 'quantity'> & { quantity: number }) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
@@ -27,18 +27,18 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setTotalPrice(price);
   }, [items]);
 
-  const addToCart = (item: Omit<CartItem, 'quantity'>) => {
+  const addToCart = (item: Omit<CartItem, 'quantity'> & { quantity: number }) => {
     setItems(prevItems => {
       const existingItem = prevItems.find(i => i.id === item.id);
       
       if (existingItem) {
-        // If item exists, increase quantity
+        // If item exists, update quantity
         return prevItems.map(i => 
-          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+          i.id === item.id ? { ...i, quantity: i.quantity + item.quantity } : i
         );
       } else {
-        // Add new item with quantity 1
-        return [...prevItems, { ...item, quantity: 1 }];
+        // Add new item with specified quantity
+        return [...prevItems, { ...item, quantity: item.quantity }];
       }
     });
   };
