@@ -152,17 +152,26 @@ const LunchBoxPage: React.FC = () => {
     }
   };
 
+  const handleManualQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value);
+    if (!isNaN(value) && value >= 20) {
+      setQuantity(value);
+    }
+  };
+
   const handleBulkOrder = () => {
     if (!selectedMeal) return;
 
-    addToCart({
-      id: selectedMeal.id,
-      name: selectedMeal.title,
+    const cartItem = {
+      id: `${selectedMeal.id}-${selectedDate?.toISOString()}`,
+      name: `${selectedMeal.title} (${formatDate(selectedDate!)})`,
       price: selectedMeal.price,
       image: selectedMeal.image,
-      type: 'meal',
+      type: 'meal' as const,
       quantity: quantity,
-    });
+    };
+
+    addToCart(cartItem);
     setIsModalOpen(false);
   };
 
@@ -367,7 +376,13 @@ const LunchBoxPage: React.FC = () => {
                     >
                       <Minus className="w-4 h-4" />
                     </button>
-                    <span className="w-16 text-center font-medium">{quantity}</span>
+                    <input
+                      type="number"
+                      min="20"
+                      value={quantity}
+                      onChange={handleManualQuantityChange}
+                      className="w-20 text-center border rounded-lg py-1 px-2"
+                    />
                     <button
                       onClick={() => handleQuantityChange(quantity + 1)}
                       className="p-2 rounded-full hover:bg-gray-100"
