@@ -3,6 +3,7 @@ import { Grocery } from '../../types';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
 import { useCart } from '../../context/CartContext';
+import { Plus, Minus } from 'lucide-react';
 
 interface GroceryCardProps {
   grocery: Grocery;
@@ -10,7 +11,21 @@ interface GroceryCardProps {
 
 const GroceryCard: React.FC<GroceryCardProps> = ({ grocery }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
+  
+  const handleQuantityChange = (value: number) => {
+    if (value >= 1) {
+      setQuantity(value);
+    }
+  };
+
+  const handleManualQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value);
+    if (!isNaN(value) && value >= 1) {
+      setQuantity(value);
+    }
+  };
   
   const handleAddToCart = () => {
     addToCart({
@@ -19,8 +34,10 @@ const GroceryCard: React.FC<GroceryCardProps> = ({ grocery }) => {
       price: grocery.price,
       image: grocery.image,
       type: 'grocery',
+      quantity: quantity,
     });
     setIsModalOpen(false);
+    setQuantity(1); // Reset quantity after adding to cart
   };
 
   return (
@@ -93,8 +110,41 @@ const GroceryCard: React.FC<GroceryCardProps> = ({ grocery }) => {
               <div className="flex justify-between items-center py-2 border-t border-gray-100">
                 <span className="text-gray-600">Price</span>
                 <span className="text-2xl font-bold text-gray-900">
-                  ${grocery.price.toFixed(2)}
+                  ${(grocery.price * quantity).toFixed(2)}
                 </span>
+              </div>
+
+              <div className="flex justify-between items-center py-2 border-t border-gray-100">
+                <span className="text-gray-600">Quantity:</span>
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleQuantityChange(quantity - 1);
+                    }}
+                    className="p-2 rounded-full hover:bg-gray-100"
+                    disabled={quantity <= 1}
+                  >
+                    <Minus className="w-4 h-4" />
+                  </button>
+                  <input
+                    type="number"
+                    min="1"
+                    value={quantity}
+                    onChange={handleManualQuantityChange}
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-20 text-center border rounded-lg py-1 px-2"
+                  />
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleQuantityChange(quantity + 1);
+                    }}
+                    className="p-2 rounded-full hover:bg-gray-100"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
             
