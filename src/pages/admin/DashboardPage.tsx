@@ -26,6 +26,22 @@ const DashboardPage: React.FC = () => {
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28'];
 
+  // Order statistics
+  const orderStats = {
+    overall: {
+      total: 156,
+      pending: 20,
+      completed: 120,
+      cancelled: 16
+    },
+    today: {
+      total: 28,
+      pending: 12,
+      completed: 15,
+      cancelled: 1
+    }
+  };
+
   const stats = {
     totalOrders: {
       value: 1247,
@@ -63,7 +79,7 @@ const DashboardPage: React.FC = () => {
       customer: 'Jane Smith',
       items: '1x Party Platter',
       total: 89.99,
-      status: 'Confirmed',
+      status: 'Completed',
       date: new Date().toISOString()
     },
     {
@@ -71,7 +87,7 @@ const DashboardPage: React.FC = () => {
       customer: 'Mike Johnson',
       items: '3x Veg Thali',
       total: 45.00,
-      status: 'Delivered',
+      status: 'Cancelled',
       date: new Date().toISOString()
     }
   ];
@@ -105,6 +121,67 @@ const DashboardPage: React.FC = () => {
     </div>
   );
 
+  const OrderStatsCard = ({ title, stats }: { title: string, stats: typeof orderStats.overall }) => (
+    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="col-span-2">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-gray-600">Total Orders</span>
+            <span className="text-2xl font-bold text-gray-900">
+              <CountUp end={stats.total} duration={2} />
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: '100%' }}></div>
+          </div>
+        </div>
+        
+        <div>
+          <div className="bg-green-50 rounded-lg p-4">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-green-700">Completed</span>
+              <span className="text-lg font-semibold text-green-700">
+                <CountUp end={stats.completed} duration={2} />
+              </span>
+            </div>
+            <div className="text-sm text-green-600">
+              {((stats.completed / stats.total) * 100).toFixed(1)}%
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div className="bg-yellow-50 rounded-lg p-4">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-yellow-700">Pending</span>
+              <span className="text-lg font-semibold text-yellow-700">
+                <CountUp end={stats.pending} duration={2} />
+              </span>
+            </div>
+            <div className="text-sm text-yellow-600">
+              {((stats.pending / stats.total) * 100).toFixed(1)}%
+            </div>
+          </div>
+        </div>
+
+        <div className="col-span-2">
+          <div className="bg-red-50 rounded-lg p-4">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-red-700">Cancelled</span>
+              <span className="text-lg font-semibold text-red-700">
+                <CountUp end={stats.cancelled} duration={2} />
+              </span>
+            </div>
+            <div className="text-sm text-red-600">
+              {((stats.cancelled / stats.total) * 100).toFixed(1)}%
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
       {/* Stats Grid */}
@@ -133,6 +210,12 @@ const DashboardPage: React.FC = () => {
           change={{ value: stats.averageOrderValue.change, isPositive: stats.averageOrderValue.isPositive }}
           icon={TrendingUp}
         />
+      </div>
+
+      {/* Order Statistics */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <OrderStatsCard title="Overall Orders" stats={orderStats.overall} />
+        <OrderStatsCard title="Today's Orders" stats={orderStats.today} />
       </div>
 
       {/* Charts Section */}
@@ -218,8 +301,8 @@ const DashboardPage: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                         ${order.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 
-                          order.status === 'Confirmed' ? 'bg-blue-100 text-blue-800' : 
-                          'bg-green-100 text-green-800'}`}>
+                          order.status === 'Completed' ? 'bg-green-100 text-green-800' : 
+                          'bg-red-100 text-red-800'}`}>
                         {order.status}
                       </span>
                     </td>
