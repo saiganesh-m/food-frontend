@@ -10,6 +10,11 @@ import GroceriesPage from './pages/GroceriesPage';
 import CartPage from './pages/CartPage';
 import AdminLayout from './components/admin/AdminLayout';
 import DashboardPage from './pages/admin/DashboardPage';
+import MenuManagementPage from './pages/admin/MenuManagementPage';
+import GroceryManagementPage from './pages/admin/GroceryManagementPage';
+import OrdersManagementPage from './pages/admin/OrdersManagementPage';
+import UsersManagementPage from './pages/admin/UsersManagementPage';
+import SettingsPage from './pages/admin/SettingsPage';
 import { CartProvider } from './context/CartContext';
 
 function App() {
@@ -23,6 +28,11 @@ function App() {
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<DashboardPage />} />
+                <Route path="menu" element={<MenuManagementPage />} />
+                <Route path="groceries" element={<GroceryManagementPage />} />
+                <Route path="orders" element={<OrdersManagementPage />} />
+                <Route path="users" element={<UsersManagementPage />} />
+                <Route path="settings" element={<SettingsPage />} />
                 {/* Add other admin routes here */}
               </Route>
 

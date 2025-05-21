@@ -8,6 +8,7 @@ const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,6 +30,11 @@ const Header: React.FC = () => {
     { id: '/party-orders', label: 'Party Orders' },
     { id: '/groceries', label: 'Home Made Groceries' },
   ];
+
+  // Don't render the header in admin routes
+  if (isAdminRoute) {
+    return null;
+  }
 
   return (
     <header 
