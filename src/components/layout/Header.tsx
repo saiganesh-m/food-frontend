@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Menu, ShoppingCart, X } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { Link, useLocation } from 'react-router-dom';
+import Button from '../ui/Button';
+import { supabase } from '../../lib/supabase';
 
 const Header: React.FC = () => {
   const { totalItems } = useCart();
@@ -9,6 +11,7 @@ const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -17,6 +20,20 @@ const Header: React.FC = () => {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    // Get initial auth state
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user || null);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const toggleMobileMenu = () => {
@@ -62,8 +79,26 @@ const Header: React.FC = () => {
           ))}
         </nav>
 
-        {/* Cart Icon */}
-        <div className="flex items-center">
+        {/* Auth and Cart */}
+        <div className="flex items-center gap-4">
+          {!user ? (
+            <div className="hidden md:flex items-center gap-3">
+              <Link to="/login">
+                <Button variant="outline" size="sm">Sign In</Button>
+              </Link>
+              <Link to="/register">
+                <Button variant="primary" size="sm">Sign Up</Button>
+              </Link>
+            </div>
+          ) : (
+            <button
+              onClick={() => supabase.auth.signOut()}
+              className="hidden md:block text-sm font-medium text-gray-700 hover:text-orange-500"
+            >
+              Sign Out
+            </button>
+          )}
+          
           <Link to="/cart" className="relative">
             <ShoppingCart className="w-6 h-6 text-gray-700 hover:text-orange-500 cursor-pointer" />
             {totalItems > 0 && (
@@ -108,6 +143,26 @@ const Header: React.FC = () => {
                 {category.label}
               </Link>
             ))}
+            {!user ? (
+              <div className="flex flex-col gap-2 pt-4 border-t">
+                <Link to="/login" onClick={toggleMobileMenu}>
+                  <Button variant="outline" fullWidth>Sign In</Button>
+                </Link>
+                <Link to="/register" onClick={toggleMobileMenu}>
+                  <Button variant="primary" fullWidth>Sign Up</Button>
+                </Link>
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  supabase.auth.signOut();
+                  toggleMobileMenu();
+                }}
+                className="text-left p-2 text-gray-700 hover:bg-gray-50 hover:text-orange-500 rounded"
+              >
+                Sign Out
+              </button>
+            )}
           </nav>
         </div>
       )}
