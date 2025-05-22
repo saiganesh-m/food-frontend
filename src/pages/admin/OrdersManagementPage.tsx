@@ -22,14 +22,17 @@ interface Order {
   address?: string;
   createdAt: string;
   updatedAt: string;
+  category?: string;
 }
 
 const OrdersManagementPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeStatus, setActiveStatus] = useState<string>('all');
+  const [activeCategory, setActiveCategory] = useState<string>('all');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
+  const [orderDate, setOrderDate] = useState('');
 
   // Sample data - replace with actual API calls
   const orders: Order[] = [
@@ -47,27 +50,34 @@ const OrdersManagementPage: React.FC = () => {
       orderType: 'delivery',
       address: '123 Main St, City, Country',
       createdAt: '2024-03-15T10:30:00Z',
-      updatedAt: '2024-03-15T10:30:00Z'
+      updatedAt: '2024-03-15T10:30:00Z',
+      category: 'lunch-box'
     }
   ];
 
+  // Only allow these three statuses
   const statuses = [
-    { id: 'all', label: 'All Status' },
     { id: 'pending', label: 'Pending' },
-    { id: 'confirmed', label: 'Confirmed' },
-    { id: 'preparing', label: 'Preparing' },
-    { id: 'ready', label: 'Ready' },
-    { id: 'delivered', label: 'Delivered' },
-    { id: 'cancelled', label: 'Cancelled' }
+    { id: 'completed', label: 'Completed' },
+    { id: 'cancelled', label: 'Cancelled' },
   ];
 
+  // Add category filter state and options
+  const categories = [
+    { id: 'all', label: 'All Categories' },
+    { id: 'lunch-box', label: 'Lunch Box' },
+    { id: 'cloud-kitchen', label: 'Cloud Kitchen' },
+    { id: 'party-orders', label: 'Party Orders' },
+    { id: 'groceries', label: 'Groceries' },
+  ];
+
+  // Local state for orders (so we can update status instantly)
+  const [ordersState, setOrdersState] = useState<Order[]>(orders);
+
   const getStatusColor = (status: Order['status']) => {
-    switch (status) {
+    switch (status.toLowerCase()) {
       case 'pending': return 'warning';
-      case 'confirmed': return 'info';
-      case 'preparing': return 'info';
-      case 'ready': return 'success';
-      case 'delivered': return 'success';
+      case 'completed': return 'success';
       case 'cancelled': return 'error';
       default: return 'default';
     }
@@ -85,18 +95,24 @@ const OrdersManagementPage: React.FC = () => {
     }
   };
 
-  const filteredOrders = orders.filter(order => {
+  const filteredOrders = ordersState.filter(order => {
     const matchesSearch = 
       order.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       order.customerEmail.toLowerCase().includes(searchQuery.toLowerCase()) ||
       order.id.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = activeStatus === 'all' || order.status === activeStatus;
-    return matchesSearch && matchesStatus;
+    const orderCategory = order.category || 'lunch-box';
+    const matchesCategory = activeCategory === 'all' || orderCategory === activeCategory;
+    // Single date filter
+    const matchesDate = orderDate ? (new Date(order.createdAt).toISOString().slice(0, 10) === orderDate) : true;
+    return matchesSearch && matchesStatus && matchesCategory && matchesDate;
   });
 
   const handleUpdateStatus = (orderId: string, newStatus: Order['status']) => {
-    // Implement API call to update order status
-    console.log('Updating order status:', orderId, newStatus);
+    setOrdersState(prev => prev.map(order =>
+      order.id === orderId ? { ...order, status: newStatus } : order
+    ));
+    setSelectedOrder(prev => prev ? { ...prev, status: newStatus } : prev);
   };
 
   const formatDate = (dateString: string) => {
@@ -107,28 +123,41 @@ const OrdersManagementPage: React.FC = () => {
     <div className="p-4 md:p-6 w-full">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0 mb-4 md:mb-6 w-full">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 md:mb-0">Orders Management</h1>
-        <div className="flex sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
-          <div className="flex items-center bg-white rounded-md sm:rounded-lg border border-gray-200 p-1 w-full sm:w-auto justify-center">
-            <button
-              onClick={() => setViewMode('card')}
-              className={`p-2 rounded-md transition-colors ${
-                viewMode === 'card' 
-                  ? 'bg-blue-50 text-blue-600' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              <Grid className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => setViewMode('table')}
-              className={`p-2 rounded-md transition-colors ${
-                viewMode === 'table' 
-                  ? 'bg-blue-50 text-blue-600' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              <List className="w-5 h-5" />
-            </button>
+        <div className="w-full md:w-auto">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3 flex flex-row items-center gap-4 w-full">
+            <div className="flex items-center gap-2 flex-1">
+              <input
+                type="date"
+                value={orderDate}
+                onChange={e => setOrderDate(e.target.value)}
+                className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm w-full min-w-[160px]"
+                placeholder="Order Date"
+              />
+            </div>
+            <div className="flex items-center bg-white rounded-md sm:rounded-lg border border-gray-200 p-1 justify-center">
+              <button
+                onClick={() => setViewMode('card')}
+                className={`p-2 rounded-md transition-colors ${
+                  viewMode === 'card' 
+                    ? 'bg-orange-50 text-orange-600' 
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+                aria-label="Card View"
+              >
+                <Grid className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                className={`p-2 rounded-md transition-colors ${
+                  viewMode === 'table' 
+                    ? 'bg-orange-50 text-orange-600' 
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+                aria-label="Table View"
+              >
+                <List className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -136,28 +165,39 @@ const OrdersManagementPage: React.FC = () => {
       {/* Filters and Search */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
         <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <div className="flex flex-1">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
               <input
                 type="text"
                 placeholder="Search orders by customer name, email, or order ID..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               />
             </div>
           </div>
-          
-          <div className="flex gap-4">
+          <div className="flex gap-4 flex-1">
+            <select
+              value={activeCategory}
+              onChange={(e) => setActiveCategory(e.target.value)}
+              className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            >
+              {categories.map(category => (
+                <option key={category.id} value={category.id}>
+                  {category.label}
+                </option>
+              ))}
+            </select>
             <select
               value={activeStatus}
               onChange={(e) => setActiveStatus(e.target.value)}
-              className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             >
+              <option value="all">All Status</option>
               {statuses.map(status => (
                 <option key={status.id} value={status.id}>
-                  {status.label}
+                  {status.label.charAt(0).toUpperCase() + status.label.slice(1)}
                 </option>
               ))}
             </select>
@@ -176,13 +216,22 @@ const OrdersManagementPage: React.FC = () => {
                   <div>
                     <h3 className="text-lg font-medium text-gray-900">Order #{order.id}</h3>
                     <p className="text-sm text-gray-500">{formatDate(order.createdAt)}</p>
+                    <p className="text-xs text-gray-500 mt-1">Email: {order.customerEmail || 'N/A'}</p>
+                    <p className="text-xs text-gray-500">Phone: {order.customerPhone || 'N/A'}</p>
                   </div>
-                  <Badge variant={getStatusColor(order.status)}>
-                    <div className="flex items-center gap-1">
-                      {getStatusIcon(order.status)}
-                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                  <div className="flex flex-col items-end gap-2">
+                    <div className="flex gap-2">
+                      <Badge variant="default">
+                        {(order.category || 'Lunch Box').split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                      </Badge>
+                      <Badge variant={getStatusColor(order.status)}>
+                        <div className="flex items-center gap-1">
+                          {getStatusIcon(order.status)}
+                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                        </div>
+                      </Badge>
                     </div>
-                  </Badge>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -212,7 +261,7 @@ const OrdersManagementPage: React.FC = () => {
                         setSelectedOrder(order);
                         setIsDetailsModalOpen(true);
                       }}
-                      className="flex items-center text-sm text-blue-600 hover:text-blue-900 hover:bg-blue-50 px-3 py-1.5 rounded-md transition-colors"
+                      className="flex items-center text-sm text-orange-600 hover:text-orange-900 hover:bg-orange-50 px-3 py-1.5 rounded-md transition-colors"
                     >
                       <Eye className="w-4 h-4 mr-1" />
                       View Details
@@ -242,12 +291,12 @@ const OrdersManagementPage: React.FC = () => {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {filteredOrders.map((order, idx) => (
-                  <tr key={order.id} className="hover:bg-blue-50 transition-colors">
+                  <tr key={order.id} className="hover:bg-orange-50 transition-colors">
                     <td className="px-6 py-4 text-center text-sm align-middle">{idx + 1}</td>
                     <td className="px-6 py-4 text-center text-sm align-middle">
                       <div className="flex items-center justify-center">
-                        <div className="h-10 w-10 flex-shrink-0 bg-blue-100 rounded-full flex items-center justify-center">
-                          <ShoppingBag className="h-6 w-6 text-blue-600" />
+                        <div className="h-10 w-10 flex-shrink-0 bg-orange-100 rounded-full flex items-center justify-center">
+                          <ShoppingBag className="h-6 w-6 text-orange-600" />
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">#{order.id}</div>
@@ -266,7 +315,7 @@ const OrdersManagementPage: React.FC = () => {
                     <td className="px-6 py-4 text-right text-sm align-middle space-x-2">
                       <button
                         onClick={() => { setSelectedOrder(order); setIsDetailsModalOpen(true); }}
-                        className="text-blue-600 hover:text-blue-900"
+                        className="text-orange-600 hover:text-orange-900"
                       >
                         <Eye className="w 5 h 5" />
                       </button>
@@ -363,7 +412,7 @@ const OrdersManagementPage: React.FC = () => {
             <div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">Update Status</h3>
               <div className="flex gap-2">
-                {statuses.filter(s => s.id !== 'all').map((status) => (
+                {statuses.map((status) => (
                   <button
                     key={status.id}
                     onClick={() => handleUpdateStatus(selectedOrder.id, status.id as Order['status'])}
@@ -371,10 +420,10 @@ const OrdersManagementPage: React.FC = () => {
                     className={`px-3 py-1 rounded-md text-sm font-medium ${
                       selectedOrder.status === status.id
                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                        : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
+                        : 'bg-orange-50 text-orange-700 hover:bg-orange-100'
                     }`}
                   >
-                    {status.label}
+                    {status.label.charAt(0).toUpperCase() + status.label.slice(1)}
                   </button>
                 ))}
               </div>

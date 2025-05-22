@@ -1,11 +1,13 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell } from 'recharts';
-import { Users, ShoppingBag, DollarSign, TrendingUp, ArrowUp, ArrowDown } from 'lucide-react';
+import { Users, ShoppingBag, DollarSign, TrendingUp, ArrowUp, ArrowDown, Eye } from 'lucide-react';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import CountUp from 'react-countup';
 import { Tooltip as ReactTooltip } from 'react-tooltip';
 import 'react-tooltip/dist/react-tooltip.css';
+import Badge from '../../components/ui/Badge';
+import Modal from '../../components/ui/Modal';
 
 const DashboardPage: React.FC = () => {
   // Sample data for charts
@@ -24,7 +26,7 @@ const DashboardPage: React.FC = () => {
     { name: 'Party Orders', value: 20 },
   ];
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28'];
+  const PIE_COLORS = ['#fb923c', '#34d399', '#60a5fa']; // orange, teal/green, blue
 
   // Order statistics
   const orderStats = {
@@ -72,7 +74,8 @@ const DashboardPage: React.FC = () => {
       items: '2x Butter Chicken, 1x Naan',
       total: 35.97,
       status: 'Pending',
-      date: new Date().toISOString()
+      date: new Date().toISOString(),
+      address: '123 Main St, City, Country',
     },
     {
       id: 'ORD002',
@@ -80,7 +83,8 @@ const DashboardPage: React.FC = () => {
       items: '1x Party Platter',
       total: 89.99,
       status: 'Completed',
-      date: new Date().toISOString()
+      date: new Date().toISOString(),
+      address: '456 Oak Ave, City, Country',
     },
     {
       id: 'ORD003',
@@ -88,7 +92,8 @@ const DashboardPage: React.FC = () => {
       items: '3x Veg Thali',
       total: 45.00,
       status: 'Cancelled',
-      date: new Date().toISOString()
+      date: new Date().toISOString(),
+      address: '789 Pine Rd, City, Country',
     }
   ];
 
@@ -182,6 +187,34 @@ const DashboardPage: React.FC = () => {
     </div>
   );
 
+  const [selectedOrder, setSelectedOrder] = React.useState(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = React.useState(false);
+
+  // Helper for status color
+  const getStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'pending': return 'warning';
+      case 'completed': return 'success';
+      case 'cancelled': return 'error';
+      default: return 'default';
+    }
+  };
+
+  const statuses = [
+    { id: 'Pending', label: 'Pending' },
+    { id: 'Completed', label: 'Completed' },
+    { id: 'Cancelled', label: 'Cancelled' },
+  ];
+
+  // Update order status handler
+  const handleUpdateStatus = (orderId, newStatus) => {
+    setSelectedOrder((prev) => prev ? { ...prev, status: newStatus } : prev);
+    setRecentOrders((prev) => prev.map(order => order.id === orderId ? { ...order, status: newStatus } : order));
+  };
+
+  // Calculate total for legend percentages
+  const totalOrdersByCategory = ordersByCategory.reduce((sum, cat) => sum + cat.value, 0);
+
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
       {/* Stats Grid */}
@@ -223,8 +256,8 @@ const DashboardPage: React.FC = () => {
         {/* Revenue Chart */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Revenue Overview</h2>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-80 overflow-x-auto min-w-[320px]">
+            <ResponsiveContainer width="100%" minWidth={320} height="100%">
               <AreaChart data={revenueData}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
@@ -251,26 +284,34 @@ const DashboardPage: React.FC = () => {
         {/* Orders by Category */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Orders by Category</h2>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-80 overflow-x-auto min-w-[320px] flex flex-col items-center justify-center">
+            <ResponsiveContainer width={220} height={220} minWidth={220} minHeight={220}>
               <PieChart>
                 <Pie
                   data={ordersByCategory}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                   outerRadius={80}
-                  fill="#8884d8"
+                  fill="#fb923c"
                   dataKey="value"
                 >
                   {ordersByCategory.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
               </PieChart>
             </ResponsiveContainer>
+            {/* Custom Legend */}
+            <div className="flex flex-wrap justify-center gap-4 mt-4 w-full">
+              {ordersByCategory.map((entry, index) => (
+                <div key={entry.name} className="flex items-center gap-2 min-w-[120px]">
+                  <span className="inline-block w-4 h-4 rounded-full" style={{ backgroundColor: PIE_COLORS[index % PIE_COLORS.length] }}></span>
+                  <span className="text-sm font-medium text-gray-700">{entry.name}</span>
+                  <span className="text-xs text-gray-500">{((entry.value / totalOrdersByCategory) * 100).toFixed(0)}%</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -283,31 +324,41 @@ const DashboardPage: React.FC = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {recentOrders.map((order) => (
                   <tr key={order.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{order.id}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.customer}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.items}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatCurrency(order.total)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                        ${order.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 
-                          order.status === 'Completed' ? 'bg-green-100 text-green-800' : 
-                          'bg-red-100 text-red-800'}`}>
+                    <td className="px-6 py-4 text-center align-middle text-sm font-medium text-gray-900">{order.id}</td>
+                    <td className="px-6 py-4 text-center align-middle text-sm text-gray-500">{order.customer}</td>
+                    <td className="px-6 py-4 text-center align-middle text-sm text-gray-500">{order.items}</td>
+                    <td className="px-6 py-4 text-center align-middle text-sm text-gray-900">{formatCurrency(order.total)}</td>
+                    <td className="px-6 py-4 text-center align-middle">
+                      <Badge variant={getStatusColor(order.status)}>
                         {order.status}
-                      </span>
+                      </Badge>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 text-center align-middle text-sm text-gray-500">
                       {new Date(order.date).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 text-center align-middle">
+                      <div className="flex items-center justify-center">
+                        <button
+                          onClick={() => { setSelectedOrder(order); setIsDetailsModalOpen(true); }}
+                          className="flex items-center gap-1 text-blue-600 hover:text-blue-900 hover:bg-blue-50 px-3 py-1.5 rounded-md transition-colors"
+                          title="View Details"
+                        >
+                          <Eye className="w-4 h-4" />
+                          <span className="text-sm font-medium">View Details</span>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -316,6 +367,89 @@ const DashboardPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Order Details Modal (styled) */}
+      <Modal isOpen={isDetailsModalOpen} onClose={() => { setIsDetailsModalOpen(false); setSelectedOrder(null); }}>
+        {selectedOrder && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-start">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Order Details</h2>
+                <p className="text-sm text-gray-500">Order ID: {selectedOrder.id}</p>
+              </div>
+              <Badge variant={getStatusColor(selectedOrder.status)}>
+                {selectedOrder.status}
+              </Badge>
+            </div>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Customer Information</h3>
+                <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                  <p className="text-sm"><span className="font-medium">Name:</span> {selectedOrder.customer}</p>
+                  <p className="text-sm"><span className="font-medium">Email:</span> demo@email.com</p>
+                  <p className="text-sm"><span className="font-medium">Phone:</span> +1234567890</p>
+                  {selectedOrder.address && (
+                    <p className="text-sm"><span className="font-medium">Address:</span> {selectedOrder.address}</p>
+                  )}
+                </div>
+              </div>
+              <div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Order Information</h3>
+                <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                  <p className="text-sm"><span className="font-medium">Order Type:</span> Delivery</p>
+                  <p className="text-sm"><span className="font-medium">Created:</span> {new Date(selectedOrder.date).toLocaleString()}</p>
+                  <p className="text-sm"><span className="font-medium">Last Updated:</span> {new Date(selectedOrder.date).toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Order Items</h3>
+              <div className="bg-gray-50 rounded-lg overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-100">
+                    <tr>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Items</th>
+                      <th className="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    <tr>
+                      <td className="px-4 py-2 text-sm text-gray-900">{selectedOrder.items}</td>
+                      <td className="px-4 py-2 text-sm text-gray-900 text-right">{formatCurrency(selectedOrder.total)}</td>
+                    </tr>
+                  </tbody>
+                  <tfoot className="bg-gray-100">
+                    <tr>
+                      <td className="px-4 py-2 text-sm font-medium text-gray-900 text-right">Total Amount:</td>
+                      <td className="px-4 py-2 text-sm font-medium text-gray-900 text-right">{formatCurrency(selectedOrder.total)}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+            {/* Status Update Section */}
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Update Status</h3>
+              <div className="flex gap-2">
+                {statuses.map((status) => (
+                  <button
+                    key={status.id}
+                    onClick={() => handleUpdateStatus(selectedOrder.id, status.id)}
+                    disabled={selectedOrder.status === status.id}
+                    className={`px-3 py-1 rounded-md text-sm font-medium ${
+                      selectedOrder.status === status.id
+                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'bg-orange-50 text-orange-700 hover:bg-orange-100'
+                    }`}
+                  >
+                    {status.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };

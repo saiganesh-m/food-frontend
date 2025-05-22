@@ -102,37 +102,41 @@ const GroceryManagementPage: React.FC = () => {
     <div className="p-4 md:p-6 w-full">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0 mb-4 md:mb-6 w-full">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 md:mb-0">Grocery Management</h1>
-        <div className="flex sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
-          <div className="flex items-center bg-white rounded-md sm:rounded-lg border border-gray-200 p-1 w-full sm:w-auto justify-center">
+        <div className="w-full md:w-auto">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3 flex flex-row items-center gap-4 w-full">
+            <div className="flex items-center bg-white rounded-md sm:rounded-lg border border-gray-200 p-1 justify-center">
+              <button
+                onClick={() => setViewMode('card')}
+                className={`p-2 rounded-md transition-colors ${
+                  viewMode === 'card' 
+                    ? 'bg-orange-50 text-orange-600' 
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+                aria-label="Card View"
+              >
+                <Grid className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                className={`p-2 rounded-md transition-colors ${
+                  viewMode === 'table' 
+                    ? 'bg-orange-50 text-orange-600' 
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+                aria-label="Table View"
+              >
+                <List className="w-5 h-5" />
+              </button>
+            </div>
             <button
-              onClick={() => setViewMode('card')}
-              className={`p-2 rounded-md transition-colors ${
-                viewMode === 'card' 
-                  ? 'bg-green-50 text-green-600' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
+              onClick={() => setIsAddModalOpen(true)}
+              className="flex items-center justify-center px-3 sm:px-4 py-2 text-sm sm:text-base bg-orange-600 text-white rounded-md sm:rounded-lg hover:bg-orange-700 transition-colors w-full sm:w-auto"
             >
-              <Grid className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => setViewMode('table')}
-              className={`p-2 rounded-md transition-colors ${
-                viewMode === 'table' 
-                  ? 'bg-green-50 text-green-600' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              <List className="w-5 h-5" />
+              <Plus className="w-5 h-5 mr-2" />
+              <span className="hidden xs:inline">Add New Item</span>
+              <span className="inline xs:hidden">Add</span>
             </button>
           </div>
-          <button
-            onClick={() => setIsAddModalOpen(true)}
-            className="flex items-center justify-center px-3 sm:px-4 py-2 text-sm sm:text-base bg-green-600 text-white rounded-md sm:rounded-lg hover:bg-green-700 transition-colors w-full sm:w-auto"
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            <span className="hidden xs:inline">Add New Item</span>
-            <span className="inline xs:hidden">Add</span>
-          </button>
         </div>
       </div>
 
@@ -147,7 +151,7 @@ const GroceryManagementPage: React.FC = () => {
                 placeholder="Search grocery items..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               />
             </div>
           </div>
@@ -156,7 +160,7 @@ const GroceryManagementPage: React.FC = () => {
             <select
               value={activeCategory}
               onChange={(e) => setActiveCategory(e.target.value)}
-              className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             >
               {categories.map(category => (
                 <option key={category.id} value={category.id}>
@@ -222,7 +226,7 @@ const GroceryManagementPage: React.FC = () => {
                         setSelectedItem(item);
                         setIsEditModalOpen(true);
                       }}
-                      className="p-2 text-green-600 hover:text-green-900 hover:bg-green-50 rounded-md transition-colors"
+                      className="p-2 text-orange-600 hover:text-orange-900 hover:bg-orange-50 rounded-md transition-colors"
                     >
                       <Edit2 className="w-5 h-5" />
                     </button>
@@ -260,7 +264,7 @@ const GroceryManagementPage: React.FC = () => {
                 {filteredItems.map((item, idx) => {
                   const availablePackages = calculateAvailablePackages(item);
                   return (
-                    <tr key={item.id} className="hover:bg-green-50 transition-colors">
+                    <tr key={item.id} className="hover:bg-orange-50 transition-colors">
                       <td className="px-6 py-4 text-center text-sm align-middle">{idx + 1}</td>
                       <td className="px-6 py-4 text-center text-sm align-middle">
                         <div className="flex items-center justify-center">
@@ -306,7 +310,7 @@ const GroceryManagementPage: React.FC = () => {
                             setSelectedItem(item);
                             setIsEditModalOpen(true);
                           }}
-                          className="text-green-600 hover:text-green-900"
+                          className="text-orange-600 hover:text-orange-900"
                         >
                           <Edit2 className="w-5 h-5" />
                         </button>

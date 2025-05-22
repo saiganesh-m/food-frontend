@@ -105,37 +105,41 @@ const MenuManagementPage: React.FC = () => {
     <div className="p-2 sm:p-4 md:p-6 w-full max-w-full overflow-x-hidden">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-0 mb-4 md:mb-6 w-full">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 md:mb-0">Menu Management</h1>
-        <div className="flex sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
-          <div className="flex items-center bg-white rounded-md sm:rounded-lg border border-gray-200 p-1 w-full sm:w-auto justify-center">
+        <div className="w-full md:w-auto">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-3 flex flex-row items-center gap-4 w-full">
+            <div className="flex items-center bg-white rounded-md sm:rounded-lg border border-gray-200 p-1 justify-center">
+              <button
+                onClick={() => setViewMode('card')}
+                className={`p-2 rounded-md transition-colors ${
+                  viewMode === 'card' 
+                    ? 'bg-orange-50 text-orange-600' 
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+                aria-label="Card View"
+              >
+                <Grid className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                className={`p-2 rounded-md transition-colors ${
+                  viewMode === 'table' 
+                    ? 'bg-orange-50 text-orange-600' 
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+                aria-label="Table View"
+              >
+                <List className="w-5 h-5" />
+              </button>
+            </div>
             <button
-              onClick={() => setViewMode('card')}
-              className={`p-2 rounded-md transition-colors ${
-                viewMode === 'card' 
-                  ? 'bg-orange-50 text-orange-600' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
+              onClick={() => setIsAddModalOpen(true)}
+              className="flex items-center justify-center px-3 sm:px-4 py-2 text-sm sm:text-base bg-orange-600 text-white rounded-md sm:rounded-lg hover:bg-orange-700 transition-colors w-full sm:w-auto"
             >
-              <Grid className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => setViewMode('table')}
-              className={`p-2 rounded-md transition-colors ${
-                viewMode === 'table' 
-                  ? 'bg-orange-50 text-orange-600' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              <List className="w-5 h-5" />
+              <Plus className="w-5 h-5 mr-2" />
+              <span className="hidden xs:inline">Add New Item</span>
+              <span className="inline xs:hidden">Add</span>
             </button>
           </div>
-          <button
-            onClick={() => setIsAddModalOpen(true)}
-            className="flex items-center justify-center px-3 sm:px-4 py-2 text-sm sm:text-base bg-orange-500 text-white rounded-md sm:rounded-lg hover:bg-orange-600 transition-colors w-full sm:w-auto"
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            <span className="hidden xs:inline">Add New Item</span>
-            <span className="inline xs:hidden">Add</span>
-          </button>
         </div>
       </div>
 
