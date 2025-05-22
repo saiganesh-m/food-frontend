@@ -8,8 +8,6 @@ import CloudKitchenPage from './pages/CloudKitchenPage';
 import PartyOrdersPage from './pages/PartyOrdersPage';
 import GroceriesPage from './pages/GroceriesPage';
 import CartPage from './pages/CartPage';
-import LoginPage from './pages/auth/LoginPage';
-import RegisterPage from './pages/auth/RegisterPage';
 import AdminLayout from './components/admin/AdminLayout';
 import DashboardPage from './pages/admin/DashboardPage';
 import MenuManagementPage from './pages/admin/MenuManagementPage';
@@ -18,22 +16,18 @@ import OrdersManagementPage from './pages/admin/OrdersManagementPage';
 import UsersManagementPage from './pages/admin/UsersManagementPage';
 import SettingsPage from './pages/admin/SettingsPage';
 import { CartProvider } from './context/CartContext';
+import { AuthModalProvider } from './context/AuthModalContext';
 import { Toaster } from 'react-hot-toast';
 
 function AppContent() {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
-  const isAuth = location.pathname === '/login' || location.pathname === '/register';
 
   return (
     <div className="min-h-screen flex flex-col">
-      {!isAuth && <Header />}
+      <Header />
       <main className="flex-grow">
         <Routes>
-          {/* Auth Routes */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<DashboardPage />} />
@@ -53,7 +47,7 @@ function AppContent() {
           <Route path="/cart" element={<CartPage />} />
         </Routes>
       </main>
-      {!isAdmin && !isAuth && <Footer />}
+      {!isAdmin && <Footer />}
       <Toaster position="top-right" />
     </div>
   );
@@ -62,9 +56,11 @@ function AppContent() {
 function App() {
   return (
     <CartProvider>
-      <BrowserRouter>
-        <AppContent />
-      </BrowserRouter>
+      <AuthModalProvider>
+        <BrowserRouter>
+          <AppContent />
+        </BrowserRouter>
+      </AuthModalProvider>
     </CartProvider>
   );
 }

@@ -4,6 +4,7 @@ import { useCart } from '../../context/CartContext';
 import { Link, useLocation } from 'react-router-dom';
 import Button from '../ui/Button';
 import { supabase } from '../../lib/supabase';
+import { useAuthModal } from '../../context/AuthModalContext';
 
 const Header: React.FC = () => {
   const { totalItems } = useCart();
@@ -12,6 +13,7 @@ const Header: React.FC = () => {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
   const [user, setUser] = useState(null);
+  const { openAuthModal } = useAuthModal();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -83,12 +85,20 @@ const Header: React.FC = () => {
         <div className="flex items-center gap-4">
           {!user ? (
             <div className="hidden md:flex items-center gap-3">
-              <Link to="/login">
-                <Button variant="outline" size="sm">Sign In</Button>
-              </Link>
-              <Link to="/register">
-                <Button variant="primary" size="sm">Sign Up</Button>
-              </Link>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => openAuthModal('login')}
+              >
+                Login
+              </Button>
+              <Button 
+                variant="primary" 
+                size="sm"
+                onClick={() => openAuthModal('register')}
+              >
+                Register
+              </Button>
             </div>
           ) : (
             <button
@@ -145,12 +155,26 @@ const Header: React.FC = () => {
             ))}
             {!user ? (
               <div className="flex flex-col gap-2 pt-4 border-t">
-                <Link to="/login" onClick={toggleMobileMenu}>
-                  <Button variant="outline" fullWidth>Sign In</Button>
-                </Link>
-                <Link to="/register" onClick={toggleMobileMenu}>
-                  <Button variant="primary" fullWidth>Sign Up</Button>
-                </Link>
+                <Button 
+                  variant="outline" 
+                  fullWidth
+                  onClick={() => {
+                    openAuthModal('login');
+                    toggleMobileMenu();
+                  }}
+                >
+                  Login
+                </Button>
+                <Button 
+                  variant="primary" 
+                  fullWidth
+                  onClick={() => {
+                    openAuthModal('register');
+                    toggleMobileMenu();
+                  }}
+                >
+                  Register
+                </Button>
               </div>
             ) : (
               <button
