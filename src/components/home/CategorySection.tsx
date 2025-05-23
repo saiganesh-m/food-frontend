@@ -1,6 +1,7 @@
 import React from 'react';
 import { Package, Cloud, Users, ShoppingBag } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const CategorySection: React.FC = () => {
   const navigate = useNavigate();
@@ -53,10 +54,38 @@ const CategorySection: React.FC = () => {
     window.scrollTo(0, 0);
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut"
+      }
+    }
+  };
+
   return (
-    <div className="py-16 md:py-24 bg-gradient-to-b from-gray-50 to-white">
+    <div className="py-16 md:py-24 bg-gradient-to-b from-gray-50 to-white overflow-hidden">
       <div className="container mx-auto px-4">
-        <div className="max-w-3xl mx-auto text-center mb-12">
+        <motion.div 
+          className="max-w-3xl mx-auto text-center mb-12"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
           <span className="inline-block text-orange-500 text-lg font-medium mb-4 px-4 py-2 border border-orange-200 rounded-full bg-orange-50">
             Our Services
           </span>
@@ -66,27 +95,39 @@ const CategorySection: React.FC = () => {
           <p className="text-xl text-gray-600">
             From daily meals to groceries and party catering, we have everything you need
           </p>
-        </div>
+        </motion.div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <motion.div 
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+        >
           {categories.map((category) => (
-            <div
+            <motion.div
               key={category.id}
+              variants={itemVariants}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => handleCategoryClick(category.path)}
               className={`
                 ${category.color} p-8 rounded-2xl border shadow-sm transition-all duration-500
-                ${category.hoverColor} hover:shadow-xl cursor-pointer transform hover:-translate-y-1
+                ${category.hoverColor} hover:shadow-xl cursor-pointer
                 backdrop-blur-sm hover:backdrop-blur-md
               `}
             >
-              <div className={`${category.iconBg} w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-inner`}>
+              <motion.div 
+                className={`${category.iconBg} w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-inner`}
+                whileHover={{ rotate: 5 }}
+              >
                 {category.icon}
-              </div>
+              </motion.div>
               <h3 className="text-2xl font-semibold mb-3 text-gray-900">{category.title}</h3>
               <p className="text-gray-600 leading-relaxed">{category.description}</p>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </div>
   );
