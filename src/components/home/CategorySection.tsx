@@ -108,23 +108,30 @@ const CategorySection: React.FC = () => {
             <motion.div
               key={category.id}
               variants={itemVariants}
-              whileHover={{ scale: 1.02 }}
+              whileHover={{ scale: 1.04, boxShadow: '0 8px 32px 0 rgba(251,146,60,0.15), 0 1.5px 8px 0 rgba(251,146,60,0.10)' }}
               whileTap={{ scale: 0.98 }}
               onClick={() => handleCategoryClick(category.path)}
               className={`
                 ${category.color} p-8 rounded-2xl border shadow-sm transition-all duration-500
-                ${category.hoverColor} hover:shadow-xl cursor-pointer
-                backdrop-blur-sm hover:backdrop-blur-md
+                ${category.hoverColor} hover:shadow-2xl hover:shadow-orange-200 cursor-pointer
+                backdrop-blur-sm hover:backdrop-blur-md flex flex-col items-center justify-between min-h-[320px]
               `}
             >
               <motion.div 
                 className={`${category.iconBg} w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-inner`}
-                whileHover={{ rotate: 5 }}
+                whileHover={{ rotate: 8, scale: 1.08 }}
+                transition={{ type: 'spring', stiffness: 300 }}
               >
                 {category.icon}
               </motion.div>
-              <h3 className="text-2xl font-semibold mb-3 text-gray-900">{category.title}</h3>
-              <p className="text-gray-600 leading-relaxed">{category.description}</p>
+              <h3 className="text-2xl font-semibold mb-3 text-gray-900 text-center">{category.title}</h3>
+              <p className="text-gray-600 leading-relaxed text-center mb-6">{category.description}</p>
+              <button
+                className="mt-auto px-6 py-2 rounded-full bg-orange-500 hover:bg-orange-600 text-white font-semibold shadow-md transition-all text-base focus:outline-none focus:ring-2 focus:ring-orange-300"
+                onClick={e => { e.stopPropagation(); handleCategoryClick(category.path); }}
+              >
+                {category.id === 'groceries' ? 'Shop Now' : category.id === 'party-orders' ? 'Book Now' : 'Order Now'}
+              </button>
             </motion.div>
           ))}
         </motion.div>

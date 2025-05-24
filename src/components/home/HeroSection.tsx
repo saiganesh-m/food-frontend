@@ -15,9 +15,12 @@ const HeroSection: React.FC = () => {
       </div>
       
       <div className="container mx-auto px-4 relative z-10">
-        <div className="max-w-3xl">
-          <span className="inline-block text-orange-400 text-lg font-medium mb-4 px-4 py-2 border border-orange-400/30 rounded-full bg-orange-400/10 backdrop-blur-sm animate-fade-in">
-            Welcome to FeastBox
+        <div className="max-w-3xl mt-16 md:mt-24">
+          <span className="inline-block mb-4 px-4 py-2 border border-orange-400/30 rounded-full bg-orange-400/10 backdrop-blur-sm animate-fade-in">
+            <span className="flex flex-row items-center gap-x-2 flex-wrap">
+              <span className="text-orange-400 text-lg font-medium whitespace-nowrap">Welcome to</span>
+              <span className="text-orange-500 text-xl font-bold whitespace-nowrap">FeastBox</span>
+            </span>
           </span>
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight animate-slide-up">
             Authentic Indian Cuisine
@@ -49,7 +52,7 @@ const HeroSection: React.FC = () => {
           </div>
 
           {/* Featured Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-16 animate-fade-in-up">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-16 mb-8 md:mb-12 animate-fade-in-up">
             <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
               <div className="text-3xl font-bold text-orange-400 mb-2">5000+</div>
               <div className="text-sm text-gray-300">Happy Customers</div>

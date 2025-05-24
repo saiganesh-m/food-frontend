@@ -70,7 +70,7 @@ const AdminLayout: React.FC = () => {
         md:static md:flex`} style={{ top: sidebarOpen ? 0 : undefined }}>
         <div>
           <div className="h-16 flex items-center px-6 border-b border-gray-200 relative">
-            <h1 className="text-xl font-bold text-orange-500">FeastBox Admin</h1>
+          <h1 className="text-xl font-bold text-orange-500">FeastBox Admin</h1>
             {/* Close button for mobile sidebar */}
             <button
               onClick={() => setSidebarOpen(false)}
@@ -79,22 +79,22 @@ const AdminLayout: React.FC = () => {
             >
               <X className="w-6 h-6" />
             </button>
-          </div>
+        </div>
           <nav className="flex-1 flex flex-col p-4 pb-8">
-            <ul className="space-y-1">
-              {menuItems.map((item) => (
-                <li key={item.path}>
-                  <Link
-                    to={item.path}
+          <ul className="space-y-1">
+            {menuItems.map((item) => (
+              <li key={item.path}>
+                <Link
+                  to={item.path}
                     className={`flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-colors ${location.pathname === item.path ? 'bg-orange-50 text-orange-600' : 'text-gray-700 hover:bg-gray-50'}`}
                     onClick={() => setSidebarOpen(false)}
-                  >
-                    {item.icon}
-                    <span>{item.label}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+                >
+                  {item.icon}
+                  <span>{item.label}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
           </nav>
         </div>
         <div className="pt-4 mt-4 border-t border-gray-200 space-y-2 p-4">
@@ -105,11 +105,11 @@ const AdminLayout: React.FC = () => {
             <Eye className="w-5 h-5" />
             <span>View as User</span>
           </button>
-          <button className="flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-700 hover:bg-gray-50 w-full">
-            <LogOut className="w-5 h-5" />
-            <span>Logout</span>
-          </button>
-        </div>
+            <button className="flex items-center space-x-3 px-4 py-2.5 rounded-lg text-gray-700 hover:bg-gray-50 w-full">
+              <LogOut className="w-5 h-5" />
+              <span>Logout</span>
+            </button>
+          </div>
       </aside>
       {/* Overlay for mobile sidebar */}
       {sidebarOpen && (

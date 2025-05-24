@@ -106,7 +106,7 @@ const DashboardPage: React.FC = () => {
 
   const StatCard = ({ title, value, change, icon: Icon }: any) => (
     <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-      <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-4">
         <div className="p-2 rounded-lg bg-blue-50">
           <Icon className="w-6 h-6 text-blue-500" />
         </div>
@@ -168,7 +168,7 @@ const DashboardPage: React.FC = () => {
               {((stats.pending / stats.total) * 100).toFixed(1)}%
             </div>
           </div>
-        </div>
+              </div>
 
         <div className="col-span-2">
           <div className="bg-red-50 rounded-lg p-4">
@@ -265,10 +265,10 @@ const DashboardPage: React.FC = () => {
                     <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" />
+              <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
+              <YAxis />
+              <Tooltip />
                 <Area
                   type="monotone"
                   dataKey="revenue"
@@ -301,7 +301,7 @@ const DashboardPage: React.FC = () => {
                   ))}
                 </Pie>
               </PieChart>
-            </ResponsiveContainer>
+          </ResponsiveContainer>
             {/* Custom Legend */}
             <div className="flex flex-wrap justify-center gap-4 mt-4 w-full">
               {ordersByCategory.map((entry, index) => (
