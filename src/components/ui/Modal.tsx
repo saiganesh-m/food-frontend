@@ -31,18 +31,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
         />
         
         {/* Modal Content */}
-        <div className="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-auto transform transition-all duration-300 scale-100">
-          <button
-            onClick={onClose}
-            className="absolute right-4 top-4 z-[60] text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
-            aria-label="Close modal"
-          >
-            <X className="w-6 h-6" />
-          </button>
-          
-          <div className="pt-14 px-6 pb-6">
-            {children}
-          </div>
+        <div className="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-auto transform transition-all duration-300 scale-100 overflow-hidden">
+          {children}
         </div>
       </div>
     </div>

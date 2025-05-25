@@ -72,8 +72,12 @@ const Header: React.FC = () => {
             <Link
               key={category.id}
               to={category.id}
-              className={`text-base font-medium transition-colors hover:text-orange-500 ${
-                location.pathname === category.id ? 'text-orange-500 border-b-2 border-orange-500' : 'text-gray-700'
+              className={`text-base font-medium transition-colors border-b-2 ${
+                location.pathname === category.id
+                  ? 'text-orange-500 border-orange-500'
+                  : isScrolled
+                    ? 'text-gray-700 border-transparent hover:text-orange-500'
+                    : 'text-white border-transparent hover:text-orange-200'
               }`}
             >
               {category.label}
@@ -110,7 +114,7 @@ const Header: React.FC = () => {
           )}
           
           <Link to="/cart" className="relative">
-            <ShoppingCart className="w-6 h-6 text-gray-700 hover:text-orange-500 cursor-pointer" />
+            <ShoppingCart className={`w-6 h-6 ${isScrolled ? 'text-gray-700 hover:text-orange-500' : 'text-white hover:text-orange-400'} cursor-pointer transition-colors`} />
             {totalItems > 0 && (
               <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                 {totalItems}
@@ -124,7 +128,7 @@ const Header: React.FC = () => {
             onClick={toggleMobileMenu}
             aria-label="Toggle menu"
           >
-            <Menu className="w-6 h-6 text-gray-700" />
+            <Menu className={`w-6 h-6 ${isScrolled ? 'text-gray-700 hover:text-orange-500' : 'text-white hover:text-orange-400'} transition-colors`} />
           </button>
         </div>
       </div>

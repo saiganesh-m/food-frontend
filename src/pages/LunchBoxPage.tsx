@@ -4,6 +4,7 @@ import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
 import { useCart } from '../context/CartContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 const LunchBoxPage: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -14,6 +15,7 @@ const LunchBoxPage: React.FC = () => {
   const [showCartPreview, setShowCartPreview] = useState(false);
   const [cartAnimation, setCartAnimation] = useState(false);
   const { items: cartItems, addToCart } = useCart();
+  const navigate = useNavigate();
 
   useEffect(() => {
     setIsHeroVisible(true);
@@ -33,10 +35,15 @@ const LunchBoxPage: React.FC = () => {
 
   const availableDates = getNextSevenDays();
 
-  // Select the first date by default
+  // Select the first selectable date by default
   useEffect(() => {
     if (availableDates.length > 0) {
-      setSelectedDate(availableDates[0]);
+      const firstSelectable = availableDates.find(isDateSelectable);
+      if (firstSelectable) {
+        setSelectedDate(firstSelectable);
+      } else {
+        setSelectedDate(null);
+      }
     }
   }, []);
 
@@ -177,8 +184,11 @@ const LunchBoxPage: React.FC = () => {
   const handleBulkOrder = () => {
     if (!selectedMeal) return;
 
+    const dateKey = selectedDate
+      ? `${selectedDate.getFullYear()}-${selectedDate.getMonth() + 1}-${selectedDate.getDate()}`
+      : '';
     const cartItem = {
-      id: `${selectedMeal.id}-${selectedDate?.toISOString()}`,
+      id: `${selectedMeal.id}-${dateKey}`,
       name: `${selectedMeal.title} (${formatDate(selectedDate!)})`,
       price: selectedMeal.price,
       image: selectedMeal.image,
@@ -211,7 +221,7 @@ const LunchBoxPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-24">
+    <div className="min-h-screen bg-gray-50 pt-0">
       {/* Floating Cart Preview */}
       <AnimatePresence>
         {showCartPreview && selectedMeal && (
@@ -249,7 +259,7 @@ const LunchBoxPage: React.FC = () => {
                 variant="primary"
                 size="sm"
                 className="whitespace-nowrap"
-                onClick={() => {/* Navigate to cart */}}
+                onClick={() => navigate('/cart')}
               >
                 View Cart
               </Button>
@@ -259,45 +269,29 @@ const LunchBoxPage: React.FC = () => {
       </AnimatePresence>
 
       {/* Hero Section */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: isHeroVisible ? 1 : 0, y: isHeroVisible ? 0 : 20 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="relative bg-gradient-to-r from-orange-500 to-red-600 text-white py-16 overflow-hidden"
-      >
-        <div className="absolute inset-0 bg-[url('https://images.pexels.com/photos/1640774/pexels-photo-1640774.jpeg')] bg-cover bg-center opacity-10 mix-blend-overlay"></div>
+      <div className="relative bg-gradient-to-r from-orange-500 to-red-600 text-white py-16 overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://images.pexels.com/photos/1640774/pexels-photo-1640774.jpeg')] bg-cover bg-center">
+          <div className="absolute inset-0 bg-black/60"></div>
+        </div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl">
-            <motion.h1 
+            <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.8 }}
-              className="text-4xl md:text-5xl font-bold mb-4"
-            >
-              Order Fresh Meals in Bulk
-            </motion.h1>
-            <motion.p 
+              className="text-4xl md:text-5xl font-bold mb-4">Order Fresh Meals in Bulk</motion.h1>
+            <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.8 }}
-              className="text-xl opacity-90 mb-8"
-            >
-              Pre-order delicious Indian meals for your organization. Minimum 20 meals per day.
-            </motion.p>
-            <motion.div 
+              className="text-xl opacity-90 mb-8">Pre-order delicious Indian meals for your organization. Minimum 20 meals per day.</motion.p>
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.8 }}
-              className="flex gap-4"
-            >
-              <Button 
-                variant="outline"
-                size="lg"
-                className="border-white/30 text-white hover:bg-white/10 transition-all duration-300 transform hover:scale-105"
-              >
-                Plan Your Order
-              </Button>
-              <Button 
+              className="flex gap-4">
+              <button className="border border-white/30 text-white px-6 py-3 rounded-lg text-lg hover:bg-white/10 transition-all duration-300 transform hover:scale-105 font-semibold">Plan Your Order</button>
+              <Button
                 variant="primary"
                 size="lg"
                 className="bg-white text-orange-600 hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
@@ -307,15 +301,15 @@ const LunchBoxPage: React.FC = () => {
             </motion.div>
           </div>
         </div>
-      </motion.div>
+      </div>
 
-      <div className="container mx-auto px-4 py-12 mt-16 md:mt-20">
+      <div className="container mx-auto px-4 py-12">
         {/* Date Selection */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.8 }}
-          className="bg-white rounded-xl shadow-sm p-6 pt-10 mb-8 border border-gray-100 mt-4 md:mt-8"
+          className="bg-white rounded-xl shadow-sm p-6 pt-10 mb-8 border border-gray-100 mt-0 md:mt-0"
         >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-6">
             <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
@@ -341,16 +335,14 @@ const LunchBoxPage: React.FC = () => {
                   onClick={() => isSelectable && setSelectedDate(date)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className={`
-                    flex-shrink-0 p-4 pt-6 mt-2 rounded-lg border-2 transition-all relative
-                    border-transparent
-                    ${isSelected
+                  className={
+                    `flex-shrink-0 p-4 pt-6 mt-2 rounded-lg border-2 transition-all relative ` +
+                    (isSelected
                       ? 'border-orange-500 bg-orange-50 text-orange-600 shadow-md'
                       : isSelectable
                         ? 'border-gray-200 hover:border-orange-200 hover:bg-orange-50/50'
-                        : 'border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed'
+                        : 'border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed')
                     }
-                  `}
                   style={{ minWidth: 120 }}
                 >
                   <div className="text-sm font-medium">{formatDate(date)}</div>
@@ -436,200 +428,129 @@ const LunchBoxPage: React.FC = () => {
 
       {/* Meal Details Modal */}
       <AnimatePresence>
-        {selectedMeal && (
-          <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+      {selectedMeal && (
+        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.3 }}
-              className="flex flex-col md:flex-row gap-8"
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.25 }}
+              className="max-w-2xl w-full max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-xl mx-auto flex flex-col"
             >
-              <div className="md:w-1/2 flex flex-col items-center">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="relative w-full"
+              <div className="relative">
+              <img
+                src={selectedMeal.image}
+                alt={selectedMeal.title}
+                  className="w-full h-56 object-cover rounded-t-2xl"
+              />
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="absolute top-3 right-3 z-10 bg-white/80 hover:bg-white text-gray-600 hover:text-orange-500 rounded-full p-2 shadow transition-colors"
+                  aria-label="Close modal"
                 >
-                  <img
-                    src={selectedMeal.image}
-                    alt={selectedMeal.title}
-                    className="w-full h-64 object-cover rounded-2xl shadow-lg mb-6"
-                  />
-                  <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 flex gap-2">
-                    <motion.div
-                      whileHover={{ scale: 1.1 }}
-                      className="bg-gradient-to-br from-orange-100 to-orange-50 p-4 rounded-xl text-center shadow-lg border border-orange-200"
-                    >
-                      <span className="block text-sm text-gray-600 mb-1">Total Calories</span>
-                      <span className="text-2xl font-bold text-orange-600">
-                        {totalCalories(selectedMeal.details)}
-                      </span>
-                    </motion.div>
-                    <motion.div
-                      whileHover={{ scale: 1.1 }}
-                      className="bg-gradient-to-br from-orange-100 to-orange-50 p-4 rounded-xl text-center shadow-lg border border-orange-200"
-                    >
-                      <span className="block text-sm text-gray-600 mb-1">Total Protein</span>
-                      <span className="text-2xl font-bold text-orange-600">
-                        {totalProtein(selectedMeal.details)}g
-                      </span>
-                    </motion.div>
-                  </div>
-                </motion.div>
-
-                {/* Nutritional Breakdown */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="w-full mt-8 bg-gradient-to-br from-orange-50 to-white p-6 rounded-xl shadow-sm border border-orange-100"
-                >
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <Star className="w-5 h-5 text-orange-500" />
-                    Nutritional Breakdown
-                  </h3>
-                  <div className="space-y-4">
-                    {Object.entries(selectedMeal.details).map(([key, value]: [string, any], index) => (
-                      <motion.div
-                        key={key}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.5 + index * 0.1 }}
-                        className="relative"
-                      >
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="text-sm font-medium text-gray-700 capitalize">{key}</span>
-                          <span className="text-sm text-gray-600">{value.calories} cal</span>
-                        </div>
-                        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                          <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${(value.calories / totalCalories(selectedMeal.details)) * 100}%` }}
-                            transition={{ duration: 1, delay: 0.8 + index * 0.1 }}
-                            className="h-full bg-gradient-to-r from-orange-400 to-orange-500 rounded-full"
-                          />
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </motion.div>
+                  <X className="w-6 h-6" />
+                </button>
               </div>
-
-              <div className="md:w-1/2 flex flex-col justify-between">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  <h2 className="text-3xl font-bold text-gray-900 mb-4">{selectedMeal.title}</h2>
-                  <div className="space-y-6">
-                    {Object.entries(selectedMeal.details).map(([key, value]: [string, any], index) => (
-                      <motion.div
-                        key={key}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.4 + index * 0.1 }}
-                        className="border-b border-gray-100 pb-4 last:border-0"
-                      >
-                        <h3 className="font-medium text-gray-900 capitalize mb-2 flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-orange-500"></span>
-                          {key}
-                        </h3>
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div className="bg-gray-50 p-2 rounded-lg">
-                            <span className="text-gray-600">Item:</span>
-                            <span className="ml-2 font-medium">{value.name}</span>
-                          </div>
-                          <div className="bg-gray-50 p-2 rounded-lg">
-                            <span className="text-gray-600">Quantity:</span>
-                            <span className="ml-2 font-medium">{value.quantity}</span>
-                          </div>
-                          <div className="bg-gray-50 p-2 rounded-lg">
-                            <span className="text-gray-600">Calories:</span>
-                            <span className="ml-2 font-medium">{value.calories}</span>
-                          </div>
-                          <div className="bg-gray-50 p-2 rounded-lg">
-                            <span className="text-gray-600">Protein:</span>
-                            <span className="ml-2 font-medium">{value.protein}</span>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6 }}
-                  className="mt-6 bg-gradient-to-br from-orange-50 to-white p-6 rounded-xl shadow-sm border border-orange-100"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-gray-900 font-medium">Quantity:</span>
-                    <div className="flex items-center gap-4">
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => handleQuantityChange(quantity - 1)}
-                        className="bg-gray-100 text-gray-500 hover:bg-orange-100 hover:text-orange-600 p-2 rounded-full transition-all text-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled={quantity <= 20}
-                      >
-                        <Minus className="w-5 h-5" />
-                      </motion.button>
-                      <motion.input
-                        type="number"
-                        min="20"
-                        value={quantity}
-                        onChange={handleManualQuantityChange}
-                        className="w-20 text-center border rounded-lg py-1 px-2 focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-500"
-                        whileFocus={{ scale: 1.05 }}
-                      />
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => handleQuantityChange(quantity + 1)}
-                        className="bg-orange-500 text-white hover:bg-orange-600 p-2 rounded-full transition-all text-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-200"
-                      >
-                        <Plus className="w-5 h-5" />
-                      </motion.button>
+              <div className="px-6 pt-4 pb-6 flex flex-col flex-1">
+                <div className="flex items-center justify-between gap-4 mb-2">
+                  <div className="flex items-center gap-2 text-sm text-gray-700">
+                    <Star className="w-4 h-4 text-orange-500" />
+                    <span className="font-medium">{totalCalories(selectedMeal.details)} cal</span>
+            </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-700">
+                    <Star className="w-4 h-4 text-orange-500" />
+                    <span className="font-medium">{totalProtein(selectedMeal.details)}g protein</span>
+                      </div>
                     </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-1 flex items-center gap-2">
+                  <span>{selectedMeal.title}</span>
+                </h2>
+                <p className="text-gray-600 text-base mb-4">{selectedMeal.description}</p>
+                <div className="mb-4">
+                  <h3 className="text-base font-semibold text-gray-900 mb-2">Meal Details</h3>
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full text-sm rounded-lg overflow-hidden">
+                      <thead>
+                        <tr className="bg-orange-50 text-gray-700">
+                          <th className="px-3 py-2 text-left font-semibold">Type</th>
+                          <th className="px-3 py-2 text-left font-semibold">Item</th>
+                          <th className="px-3 py-2 text-left font-semibold">Quantity</th>
+                          <th className="px-3 py-2 text-left font-semibold">Calories</th>
+                          <th className="px-3 py-2 text-left font-semibold">Protein</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {Object.entries(selectedMeal.details).map(([key, value]: [string, any], idx) => (
+                          <tr key={key} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                            <td className="px-3 py-2 font-medium capitalize text-gray-800">{key}</td>
+                            <td className="px-3 py-2 text-gray-700">{value.name}</td>
+                            <td className="px-3 py-2 text-gray-700">{value.quantity}</td>
+                            <td className="px-3 py-2 text-gray-700">{value.calories} cal</td>
+                            <td className="px-3 py-2 text-gray-700">{value.protein}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-                  <div className="flex justify-between items-center mb-6">
-                    <span className="text-gray-900 font-medium">Total Price:</span>
-                    <motion.span
-                      initial={{ scale: 0.8 }}
-                      animate={{ scale: 1 }}
-                      className="text-2xl font-bold text-orange-600"
+              </div>
+                <div className="flex items-center justify-between mb-2 mt-2">
+                  <span className="text-gray-900 font-medium text-sm">Quantity:</span>
+                  <div className="flex items-center gap-2">
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => handleQuantityChange(quantity - 1)}
+                      className="bg-gray-100 text-gray-500 hover:bg-orange-100 hover:text-orange-600 p-2 rounded-full transition-all text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={quantity <= 20}
                     >
-                      ${(selectedMeal.price * quantity).toFixed(2)}
-                    </motion.span>
+                      <Minus className="w-4 h-4" />
+                    </motion.button>
+                    <motion.input
+                      type="number"
+                      min="20"
+                      value={quantity}
+                      onChange={handleManualQuantityChange}
+                      className="w-16 text-center border rounded-lg py-1 px-2 focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-500 text-base"
+                      whileFocus={{ scale: 1.05 }}
+                    />
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => handleQuantityChange(quantity + 1)}
+                      className="bg-orange-500 text-white hover:bg-orange-600 p-2 rounded-full transition-all text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-200"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </motion.button>
                   </div>
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                </div>
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-gray-900 font-medium text-sm">Total Price:</span>
+                  <motion.span
+                    initial={{ scale: 0.8 }}
+                    animate={{ scale: 1 }}
+                    className="text-lg font-bold text-orange-600"
                   >
-                    <Button
-                      variant="primary"
-                      fullWidth
-                      size="lg"
-                      onClick={handleBulkOrder}
-                      className="shadow-lg shadow-orange-500/30 hover:shadow-orange-500/40 text-lg relative overflow-hidden group"
-                    >
-                      <span className="relative z-10">Order Now</span>
-                      <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-orange-600 to-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                        initial={false}
-                        whileHover={{ scale: 1.1 }}
-                      />
-                    </Button>
-                  </motion.div>
-                </motion.div>
+                    ${(selectedMeal.price * quantity).toFixed(2)}
+                  </motion.span>
+                </div>
+                <Button
+                  variant="primary"
+                  fullWidth
+                  size="md"
+                  onClick={handleBulkOrder}
+                  className="shadow-lg shadow-orange-500/30 hover:shadow-orange-500/40 text-base relative overflow-hidden group"
+                >
+                  <span className="relative z-10">Order Now</span>
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-orange-600 to-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    initial={false}
+                    whileHover={{ scale: 1.1 }}
+                  />
+                </Button>
               </div>
             </motion.div>
-          </Modal>
-        )}
+        </Modal>
+      )}
       </AnimatePresence>
     </div>
   );
